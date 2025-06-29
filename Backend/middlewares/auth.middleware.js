@@ -1,6 +1,9 @@
-const userModel = require('../models/user.model');
+const userModel = require('../models/user.model.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const blackListTokenModel = require('../models/blackListToken.model');
+
+
 
 
 module.exports.authUser = async (req, res, next) => 
@@ -11,13 +14,17 @@ module.exports.authUser = async (req, res, next) =>
     // “Get the token from cookies if it's there; otherwise, check the Authorization header.”
     const token = req.cookies.token || req.headers.authorization?.split(' ')[ 1 ];
 
+    console.log(token);
+    
     if (!token) 
     {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
     // checks if the token is present in blackList Collection, token is put there when we logout
-    const isBlacklisted = await userModel.findOne({ token: token });
+    const isBlacklisted = await blackListTokenModel.findOne({ token: token });
+    
+    console.log(isBlacklisted);
     
     if (isBlacklisted) 
     {
