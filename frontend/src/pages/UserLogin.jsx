@@ -1,20 +1,41 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { UserDataContext } from '../context/UserContext'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 const UserLogin = () => 
 {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [userData, setUserData] = useState({})
+  const [ email, setEmail ] = useState('')
+  const [ password, setPassword ] = useState('')
+  const [ userData, setUserData ] = useState({})
+
+  const { user, setUser } = useContext(UserDataContext)
+
+  const navigate = useNavigate()
 
 
-  const submitHandler = (e) => 
+  const submitHandler = async (e) => 
   {
     e.preventDefault();
-    setUserData({
+    
+    const userDataPayload = {
       email: email,
       password: password
-    })
+    }
+
+    const resp = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userDataPayload)
+
+    console.log(resp);
+    
+    if (resp.status === 200) 
+    {
+      const data=resp.data//json data is present inside resp.data ".json({token,user})"
+      setUser(data.user) // storing user info in UserDataContext
+      localStorage.setItem('token', data.token) // storing jwt token in localStorage
+      navigate('/home')
+    }
+
     setEmail('')
     setPassword('')
   }
@@ -29,9 +50,7 @@ const UserLogin = () =>
           <input
             required
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value)
-            }}
+            onChange={(e) => { setEmail(e.target.value) }}
             className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
             type="email"
             placeholder='email@example.com'
@@ -42,9 +61,7 @@ const UserLogin = () =>
           <input
             className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
             value={password}
-            onChange={(e) => {
-              setPassword(e.target.value)
-            }}
+            onChange={(e) => { setPassword(e.target.value) }}
             required type="password"
             placeholder='password'
           />
@@ -58,7 +75,7 @@ const UserLogin = () =>
       </div>
       <div>
         <Link
-        to='/captain-login'
+          to='/captain-login'
           className='bg-[#10b461] flex items-center justify-center text-white font-semibold mb-5 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
         >Sign in as Captain</Link>
       </div>
