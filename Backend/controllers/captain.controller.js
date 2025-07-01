@@ -1,7 +1,7 @@
 const captainModel = require('../models/captain.model.js');
 const captainService = require('../services/captain.service.js');
 const { validationResult } = require('express-validator');
-const blackListTokenModel = require('../models/blackListToken.model');
+const blackListTokenModel = require('../models/blackListToken.model.js');
 
 
 module.exports.registerCaptain = async (req, res, next) => 
@@ -44,22 +44,34 @@ module.exports.registerCaptain = async (req, res, next) =>
 
 module.exports.loginCaptain = async (req, res, next) => 
 {
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) 
     {
         return res.status(400).json({ errors: errors.array() });
     }
 
+    console.log("inside captain.controller LOGINcap");
+    
+
     const { email, password } = req.body;
+
+    console.log("data recieved from frontend:");
+    console.log(req.body);
+    
 
     const captain = await captainModel.findOne({ email }).select('+password');
 
+    console.log("capFound?");
+    console.log(captain);
+    
     if (!captain) 
     {
         return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     const isMatch = await captain.comparePassword(password);
+    console.log(`pwd matched? == ${isMatch}`);
 
     if (!isMatch) 
     {
@@ -68,7 +80,7 @@ module.exports.loginCaptain = async (req, res, next) =>
 
     const token = captain.generateAuthToken();
 
-    res.cookie('token', token);
+    // res.cookie('token', token);
     res.status(200).json({ token, captain });
 }
 

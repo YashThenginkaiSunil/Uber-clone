@@ -9,8 +9,7 @@ const UserSignup = () =>
   const [ password, setPassword ] = useState('')
   const [ firstName, setFirstName ] = useState('')
   const [ lastName, setLastName ] = useState('')
-  const [userData, setUserData] = useState({})
-
+  
   const navigate = useNavigate()
 
   const { user, setUser } = useContext(UserDataContext)

@@ -14,15 +14,19 @@ export const UserLogout = () =>
 // ->Perform any cleanup needed
     const headersAuthorization={ headers: { Authorization: `Bearer ${token}` } }
 
+    console.log("inside UserLogout.jsx");
+    console.log(headersAuthorization);
+    
     axios.get(`${import.meta.env.VITE_API_URL}/users/logout`, headersAuthorization)
         .then((response) => 
             {
                 if (response.status === 200) 
                 {
+                    console.log("inside .then in UserLogout.jsx");
                     localStorage.removeItem('token')
                     navigate('/login')
                 }
-    })
+            })
 
     return (
         <div>UserLogout</div>
