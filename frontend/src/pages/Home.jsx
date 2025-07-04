@@ -5,6 +5,8 @@ import 'remixicon/fonts/remixicon.css'
 import LocationSearchPanel from '../components/LocationSearchPanel';
 import VehiclePanel from '../components/VehiclePanel';
 import ConfirmRide from '../components/ConfirmRide';
+import LookingForDriver from '../components/LookingForDriver';
+import WaitingForDriver from '../components/WaitingForDriver';
 
 const Home = () => 
 {
@@ -14,11 +16,15 @@ const Home = () =>
     const [panelOpen, setPanelOpen] = useState(false)
     const [vehiclePanel, setVehiclePanel] = useState(false)
     const [confirmRidePanel, setConfirmRidePanel] = useState(false)
+    const [vehicleFound, setVehicleFound] = useState(false)
+    const [waitingForDriver, setWaitingForDriver] = useState(false)
 
     const vehiclePanelRef = useRef(null)
     const confirmRidePanelRef = useRef(null)
     const panelRef = useRef(null)
     const panelCloseButtonRef = useRef(null)
+    const vehicleFoundRef = useRef(null)
+    const waitingForDriverRef = useRef(null)
 
     const submitHandler = (e) => {
         e.preventDefault()
@@ -81,6 +87,33 @@ const Home = () =>
 
 //-----------------------------------------------------------------------------------------------------------
 
+useGSAP(function () {
+        if (vehicleFound) {
+            gsap.to(vehicleFoundRef.current, {
+                transform: 'translateY(0)'
+            })
+        } else {
+            gsap.to(vehicleFoundRef.current, {
+                transform: 'translateY(100%)'
+            })
+        }
+    }, [vehicleFound])
+
+//----------------------------------------------------------------------------------------------------
+
+    useGSAP(function () {
+        if (waitingForDriver) {
+            gsap.to(waitingForDriverRef.current, {
+                transform: 'translateY(0)'
+            })
+        } else {
+            gsap.to(waitingForDriverRef.current, {
+                transform: 'translateY(100%)'
+            })
+        }
+    }, [waitingForDriver])
+
+//---------------------------------------------------------------------------------------------------
 
     return(
       //h-screen:	Sets height to 100% of the viewport height (100vh)
@@ -107,18 +140,19 @@ const Home = () =>
                 <div className='h-[30%] p-6 bg-white relative'>
 
                     {/* for down arrow PANEL CLOSE BUTTON */}
+                    {/* refs are added in order to target them in gsap, used as alernative to 'id' here */}
                     <h5 ref={panelCloseButtonRef} onClick={() => { setPanelOpen(false) }} className='absolute opacity-0 right-6 top-6 text-2xl'>
                         <i className="ri-arrow-down-line"></i>
                     </h5>
 
                     <h4 className='text-2xl font-semibold'>Find a trip</h4>
-                    <form onSubmit={(e) => { submitHandler(e) }}>
-                        <div className="line absolute h-16 w-1 top-[45%] left-10 bg-gray-700 rounded-full"></div>
+                    <form className='relative py-3' onSubmit={(e) => { submitHandler(e) }}>
+                        <div className="line absolute h-16 w-1 top-[50%] -translate-y-1/2 left-5 bg-gray-700 rounded-full"></div>
                         <input
                             onClick={() => { setPanelOpen(true) }}
                             value={pickup}
                             onChange={(e) => { setPickup(e.target.value) }}
-                            className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full mt-5'
+                            className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full'
                             type="text"
                             placeholder='Add a pick-up location'
                         />
@@ -133,6 +167,7 @@ const Home = () =>
                 </div>
 
                 {/* choose a location panel when above panel comes up  */}
+                 {/* refs are added in order to target them in gsap, used as alernative to 'id' here */}
                 <div ref={panelRef} className='bg-white h-0'>
                     <LocationSearchPanel setPanelOpen={setPanelOpen} setVehiclePanel={setVehiclePanel} />
                 </div>
@@ -143,10 +178,22 @@ const Home = () =>
                 <VehiclePanel setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
             </div>
 
-
+            {/* confirm your ride panel */}
             <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
-                <ConfirmRide setConfirmRidePanel={setConfirmRidePanel} />
+                <ConfirmRide setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
             </div>
+
+            {/* looking for vehicle panel */}
+            <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
+                <LookingForDriver setVehicleFound={setVehicleFound} />
+            </div>
+
+
+            <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0  bg-white px-3 py-6 pt-12'>
+                <WaitingForDriver  waitingForDriver={waitingForDriver} />
+            </div>
+
+
         </div>
     )
 }
