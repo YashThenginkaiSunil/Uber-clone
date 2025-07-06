@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import axios from 'axios';
 import 'remixicon/fonts/remixicon.css'
 import LocationSearchPanel from '../components/LocationSearchPanel';
 import VehiclePanel from '../components/VehiclePanel';
@@ -19,6 +20,12 @@ const Home = () =>
     const [vehicleFound, setVehicleFound] = useState(false)
     const [waitingForDriver, setWaitingForDriver] = useState(false)
 
+    const [ pickupSuggestions, setPickupSuggestions ] = useState([])
+    const [ destinationSuggestions, setDestinationSuggestions ] = useState([])
+    const [ activeField, setActiveField ] = useState(null)
+    const [ fare, setFare ] = useState({})
+    const [ vehicleType, setVehicleType ] = useState(null)
+
     const vehiclePanelRef = useRef(null)
     const confirmRidePanelRef = useRef(null)
     const panelRef = useRef(null)
@@ -26,8 +33,96 @@ const Home = () =>
     const vehicleFoundRef = useRef(null)
     const waitingForDriverRef = useRef(null)
 
+    const vehicleImage={
+        'car':"https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg",
+        "moto":"https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_638,w_956/v1649231091/assets/2c/7fa194-c954-49b2-9c6d-a3b8601370f5/original/Uber_Moto_Orange_312x208_pixels_Mobile.png",
+        "auto":"https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png"
+    }
+
     const submitHandler = (e) => {
         e.preventDefault()
+    }
+
+//-----------------------------------------------------------
+    // onChange handler for Pickup Field 
+    const handlePickupChange = async (e) => 
+    {
+        setPickup(e.target.value)
+
+        try 
+        {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`, 
+                {
+                    params: { input: e.target.value },
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                })
+
+            console.log(response.data);
+            
+            setPickupSuggestions(response.data)
+        } 
+        catch(err)
+        {
+            console.log(err);
+        }
+    }
+
+//-----------------------------------------------------------
+    // onChange handler for Destination Field
+    const handleDestinationChange = async (e) => 
+    {
+        setDestination(e.target.value)
+
+        try 
+        {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`, 
+                {
+                    params: { input: e.target.value },
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                })
+
+            setDestinationSuggestions(response.data)
+        } 
+        catch(err)
+        {
+           console.log(err);
+           
+        }
+    }
+
+//-----------------------------------------------------------
+
+    async function findTrip() 
+    {
+        setVehiclePanel(true)
+        setPanelOpen(false)
+
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/get-fare`, 
+            {
+                params: { pickup, destination },
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            })
+
+    // {'car':xxx,'moto':yyy,'auto':zzz}
+        console.log(response.data)
+        setFare(response.data)
+    }
+
+//-----------------------------------------------------------
+
+    async function createRide() 
+    {
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, 
+            {
+                pickup,
+                destination,
+                vehicleType
+            }, 
+            {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            })
+
+        console.log(response.data)
     }
 
     //---------------------------------------------------------------------------------------------
@@ -76,12 +171,14 @@ const Home = () =>
     useGSAP(function () {
         if (confirmRidePanel) {
             gsap.to(confirmRidePanelRef.current, {
-                transform: 'translateY(0)'   // If true, come up ; If false, go down
+                transform: 'translateY(0)' , // // If true, come up ; If false, go down
+                 
             })
         } else {
             gsap.to(confirmRidePanelRef.current, {
-                transform: 'translateY(100%)'  // positive value Moves it down w.r.t Y-axis
-            })                                  // negative value Moves it up w.r.t Y-axis
+                transform: 'translateY(100%)', // positive value Moves it down w.r.t Y-axis
+                                    // negative value Moves it up w.r.t Y-axis
+            })                                  
         }
     }, [confirmRidePanel])
 
@@ -90,11 +187,13 @@ const Home = () =>
 useGSAP(function () {
         if (vehicleFound) {
             gsap.to(vehicleFoundRef.current, {
-                transform: 'translateY(0)'
+                transform: 'translateY(0)',
+                
             })
         } else {
             gsap.to(vehicleFoundRef.current, {
-                transform: 'translateY(100%)'
+                transform: 'translateY(100%)',
+               
             })
         }
     }, [vehicleFound])
@@ -109,6 +208,7 @@ useGSAP(function () {
         } else {
             gsap.to(waitingForDriverRef.current, {
                 transform: 'translateY(100%)'
+                
             })
         }
     }, [waitingForDriver])
@@ -117,7 +217,7 @@ useGSAP(function () {
 
     return(
       //h-screen:	Sets height to 100% of the viewport height (100vh)
-      //overflow-hidden:	Prevents content from overflowing visually — anything spilling outside won’t be shown
+      //overflow-hidden: Prevents content from overflowing visually — anything spilling outside won’t be shown
       <div className='h-screen relative overflow-hidden'>
 
 
@@ -133,7 +233,7 @@ useGSAP(function () {
                 <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" />
             </div>
 
-             {/* full screen */}
+             {/* search panel in home screen*/}
             <div className='flex flex-col justify-end h-screen absolute top-0 w-full'>
 
                 {/* find a trip, add loc, dest */}
@@ -149,43 +249,81 @@ useGSAP(function () {
                     <form className='relative py-3' onSubmit={(e) => { submitHandler(e) }}>
                         <div className="line absolute h-16 w-1 top-[50%] -translate-y-1/2 left-5 bg-gray-700 rounded-full"></div>
                         <input
-                            onClick={() => { setPanelOpen(true) }}
+                            onClick={() => { setPanelOpen(true); setActiveField('pickup') }}
                             value={pickup}
-                            onChange={(e) => { setPickup(e.target.value) }}
+                            onChange={ handlePickupChange } 
                             className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full'
                             type="text"
                             placeholder='Add a pick-up location'
                         />
                         <input
-                            onClick={() => { setPanelOpen(true) }}
+                            onClick={() => { setPanelOpen(true); setActiveField('destination') }}
                             value={destination}
-                            onChange={(e) => { setDestination(e.target.value) }}
+                            onChange={handleDestinationChange } 
                             className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full  mt-3'
                             type="text"
                             placeholder='Enter your destination' />
                     </form>
+
+                    {/* 'find trip' button, gets the fare prices of each vehicle */}
+                    {/* Inside findTrip() setVehiclePanel(true)  setPanelOpen(false) */}
+                    <button onClick={findTrip} className='bg-black text-white px-4 py-2 rounded-lg mt-5 w-full'>
+                        Find Trip
+                    </button>
+
                 </div>
 
                 {/* choose a location panel when above panel comes up  */}
                  {/* refs are added in order to target them in gsap, used as alernative to 'id' here */}
                 <div ref={panelRef} className='bg-white h-0'>
-                    <LocationSearchPanel setPanelOpen={setPanelOpen} setVehiclePanel={setVehiclePanel} />
+                    <LocationSearchPanel
+                        suggestions={activeField === 'pickup' ? pickupSuggestions : destinationSuggestions} 
+                        setPanelOpen={setPanelOpen} 
+                        setVehiclePanel={setVehiclePanel}
+                        setPickup={setPickup}
+                        setDestination={setDestination}
+                        activeField={activeField}
+                    />
                 </div>
             </div>
 
               {/* translate-y-full :- shifts the element downward by 100% of its height. SAME AS: transform: translateY(100%);  z-10: z-index:10 so tht it comes on top of above panel(find a trip panel) */}
-            <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
-                <VehiclePanel setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
+            <div ref={vehiclePanelRef} className='fixed w-full h-screen z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
+                <VehiclePanel 
+                    setConfirmRidePanel={setConfirmRidePanel} 
+                    setVehiclePanel={setVehiclePanel} 
+                    setVehicleType={setVehicleType}
+                    fare={fare}
+                    vehicleImage={vehicleImage}
+                />
             </div>
 
             {/* confirm your ride panel */}
-            <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
-                <ConfirmRide setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
+            <div ref={confirmRidePanelRef} className='fixed w-full h-screen z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
+                <ConfirmRide 
+                    setConfirmRidePanel={setConfirmRidePanel} 
+                    setVehicleFound={setVehicleFound}
+                    setVehiclePanel={setVehiclePanel}
+                    createRide={createRide}
+                    pickup={pickup}
+                    destination={destination}
+                    fare={fare}
+                    vehicleType={vehicleType} 
+                    vehicleImage={vehicleImage}
+                />
             </div>
 
             {/* looking for vehicle panel */}
             <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
-                <LookingForDriver setVehicleFound={setVehicleFound} />
+                <LookingForDriver 
+                    setVehicleFound={setVehicleFound}
+                    createRide={createRide}
+                    pickup={pickup}
+                    destination={destination}
+                    fare={fare}
+                    vehicleType={vehicleType}
+                    vehicleImage={vehicleImage} 
+                />
             </div>
 
 
