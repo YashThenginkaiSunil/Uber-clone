@@ -1,4 +1,5 @@
 const axios = require('axios');
+const captainModel = require('../models/captain.model');
 
 module.exports.getAddressCoordinate = async (address) =>
 {
@@ -123,4 +124,22 @@ module.exports.getAutoCompleteSuggestions = async (input) =>
         console.error(err);
         throw err;
     }
+}
+
+module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => 
+{
+    // radius in km
+    // This line uses MongoDB’s geospatial query capabilities to find all captains within a certain radius of a point
+    const captains = await captainModel.find({
+        location: {
+            $geoWithin: { // $geoWithin -->	Finds documents where location lies inside a defined area
+                $centerSphere: [ [ ltd, lng ], radius / 6371 ] // $centerSphere -->	Defines a spherical area — takes center [lng, lat] and radius
+            }
+        }
+    });
+
+    // This will return a list of captain documents where their location falls inside that radius from the center point
+    return captains;
+
+
 }

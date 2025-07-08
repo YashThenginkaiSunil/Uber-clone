@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import axios from 'axios';
@@ -8,9 +8,22 @@ import VehiclePanel from '../components/VehiclePanel';
 import ConfirmRide from '../components/ConfirmRide';
 import LookingForDriver from '../components/LookingForDriver';
 import WaitingForDriver from '../components/WaitingForDriver';
+import { SocketContext } from '../context/SocketContext';
+import { useContext } from 'react';
+import { UserDataContext } from '../context/UserContext';
 
 const Home = () => 
 {
+    const { socket } = useContext(SocketContext)
+    const { user } = useContext(UserDataContext)
+
+    useEffect(() => 
+        {
+            // sent to socket.js in backend
+            socket.emit("join", { userType: "user", userId: user._id })
+
+        }, [ user ])
+
     const [pickup, setPickup] = useState('')
     const [destination, setDestination] = useState('')
 

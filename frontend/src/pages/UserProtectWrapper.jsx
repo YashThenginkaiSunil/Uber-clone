@@ -24,15 +24,17 @@ const UserProtectWrapper = ({ children }) =>
                 navigate('/login')
             }
 
+            //3. if token exists, send a request to server to get the user profile 
+
             const headersAuthorization={ headers: { authorization: `Bearer ${token}` } }
 
             axios.get(`${import.meta.env.VITE_BASE_URL}/users/profile`, headersAuthorization)
                 .then( (response) => {
                         if (response.status === 200) 
                         {
-                            console.log(response.data);
-                            setUser(response.data.user)// sets user data in UserDataContext *WRONG*
-                            console.log(user);// response.data.user doesnt exist, so no setting
+                            // console.log(response.data);
+                            setUser(response.data)// sets user data in UserDataContext
+                            console.log(user);
                             setIsLoading(false)
                         }
                 })
