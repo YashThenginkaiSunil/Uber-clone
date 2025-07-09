@@ -61,7 +61,7 @@ const Home = () =>
         {
             console.log("ride")
             setWaitingForDriver(false)
-            navigate('/riding')
+            navigate('/riding', { state: { ride } })
         })
     
 

@@ -22,7 +22,7 @@ const ConfirmRidePopUp = (props) =>
         {
             props.setConfirmRidePopupPanel(false)
             props.setRidePopupPanel(false)
-            navigate('/captain-riding', { state: { ride: response.data } })
+           navigate('/captain-riding', { state: { ride: props.ride } })
         }
     }
 
