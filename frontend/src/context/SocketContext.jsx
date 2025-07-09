@@ -25,7 +25,7 @@ const SocketProvider = ({ children }) =>
 
     return (
 
-        // Shares that socket across your app so any child component can access and use it
+        //  Shares that socket across your app so any child component can access and use it
         <SocketContext.Provider value={{ socket }}>
             {children}
         </SocketContext.Provider>

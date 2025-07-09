@@ -58,7 +58,7 @@ function initializeSocket(server)
 
 function sendMessageToSocketId(socketId, messageObject) 
 {
-    console.log(`Sending message to ${socketId}`, messageObject);
+    console.log(messageObject);
 
     if(io) 
     {
