@@ -117,6 +117,8 @@ const CaptainHome = () =>
               {/* uber logo */}
                 <img className='w-16' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
 
+                <button className='bg-red-800 p-2 rounded-3xl text-white font-bold  '><Link to='/captain/logout'>Logout</Link></button>
+
                 {/* home logo */}
                 <Link to='/captain-home' className=' h-10 w-10 bg-white flex items-center justify-center rounded-full'>
                     <i className="text-lg font-medium ri-logout-box-r-line"></i>

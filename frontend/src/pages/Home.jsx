@@ -11,7 +11,7 @@ import WaitingForDriver from '../components/WaitingForDriver';
 import { SocketContext } from '../context/SocketContext';
 import { useContext } from 'react';
 import { UserDataContext } from '../context/UserContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Home = () => 
 {
@@ -256,18 +256,20 @@ useGSAP(function () {
             {/* uber logo */}
             <img className='w-16 absolute left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
 
+             <button className='bg-red-800 p-2 rounded-3xl text-white font-bold w-20 absolute right-5 top-4 '><Link to='/user/logout'>Logout</Link></button>
 
             {/* for background Map, takes full  screen size */}
             <div className='h-screen w-screen'>
                 {/* Map image for temporary use  */}
-
+                
                 {/* h-full:	Sets height to 100% of its parent element’s height (100%) */}
                 <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" />
+                
             </div>
 
              {/* search panel in home screen*/}
             <div className='flex flex-col justify-end h-screen absolute top-0 w-full'>
-
+                    
                 {/* find a trip, add loc, dest */}
                 <div className='h-[30%] p-6 bg-white relative'>
 
