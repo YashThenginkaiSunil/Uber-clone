@@ -14,15 +14,6 @@ import { UserDataContext } from '../context/UserContext';
 
 const Home = () => 
 {
-    const { socket } = useContext(SocketContext)
-    const { user } = useContext(UserDataContext)
-
-    useEffect(() => 
-        {
-            // sent to socket.js in backend
-            socket.emit("join", { userType: "user", userId: user._id })
-
-        }, [ user ])
 
     const [pickup, setPickup] = useState('')
     const [destination, setDestination] = useState('')
@@ -38,6 +29,7 @@ const Home = () =>
     const [ activeField, setActiveField ] = useState(null)
     const [ fare, setFare ] = useState({})
     const [ vehicleType, setVehicleType ] = useState(null)
+    const [ ride, setRide ] = useState(null)
 
     const vehiclePanelRef = useRef(null)
     const confirmRidePanelRef = useRef(null)
@@ -45,6 +37,25 @@ const Home = () =>
     const panelCloseButtonRef = useRef(null)
     const vehicleFoundRef = useRef(null)
     const waitingForDriverRef = useRef(null)
+
+
+    const { socket } = useContext(SocketContext)
+    const { user } = useContext(UserDataContext)
+
+    useEffect(() => 
+        {
+            // sent to socket.js in backend
+            socket.emit("join", { userType: "user", userId: user._id })
+
+        }, [ user ])
+
+    socket.on('ride-confirmed', (ride) => 
+        {
+            setVehicleFound(false)
+            setWaitingForDriver(true)
+            setRide(ride)
+        })
+    
 
     const vehicleImage={
         'car':"https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg",
@@ -341,7 +352,12 @@ useGSAP(function () {
 
 
             <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0  bg-white px-3 py-6 pt-12'>
-                <WaitingForDriver  waitingForDriver={waitingForDriver} />
+                <WaitingForDriver  
+                    waitingForDriver={waitingForDriver}
+                    setWaitingForDriver={setWaitingForDriver} 
+                    setVehicleFound={setVehicleFound}
+                    ride={ride}
+                />
             </div>
 
 

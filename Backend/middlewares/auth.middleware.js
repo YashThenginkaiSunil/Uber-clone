@@ -58,6 +58,8 @@ module.exports.authCaptain = async (req, res, next) =>
     
     const token = req.cookies.token || req.headers.authorization?.split(' ')[ 1 ];
 
+    console.log(req.headers)
+
      console.log("token in authCaptain");
      console.log(token);
 
